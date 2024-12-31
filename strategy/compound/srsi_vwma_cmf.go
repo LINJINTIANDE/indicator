@@ -15,7 +15,7 @@ import (
 
 // MacdRsiStrategy represents the configuration parameters for calculating the MACD-RSI strategy.
 type SrisVwmaStrategy struct {
-	//
+	////
 	VwmaStrategy *trend.VwmaStrategy
 
 	StRsiStrategy *momentum.StochasticRsiStrategy
