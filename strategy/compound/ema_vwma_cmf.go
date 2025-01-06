@@ -9,39 +9,33 @@ import (
 	"github.com/cinar/indicator/v2/asset"
 	"github.com/cinar/indicator/v2/helper"
 	"github.com/cinar/indicator/v2/strategy"
-	"github.com/cinar/indicator/v2/strategy/momentum"
 	"github.com/cinar/indicator/v2/strategy/trend"
 )
 
 // MacdRsiStrategy represents the configuration parameters for calculating the MACD-RSI strategy.
-type SrisVwmaStrategy struct {
+type DemaVwmaStrategy struct {
 	//
 	VwmaStrategy *trend.VwmaStrategy
 
-	StRsiStrategy *momentum.StochasticRsiStrategy
-}
-
-// NewMacdRsiStrategy function initializes a new MACD-RSI strategy instance with the default parameters.
-func NewSrisVwmaStrategy() *SrisVwmaStrategy {
-	return NewSrisVwmaStrategy()
+	DemaStrategy *trend.DemaStrategy
 }
 
 // NewMacdRsiStrategyWith function initializes a new MACD-RSI strategy instance with the given parameters.
-func NewMSrisVwmaCmfStrategy() *SrisVwmaStrategy {
-	return &SrisVwmaStrategy{
-		VwmaStrategy:  trend.NewVwmaStrategy(),
-		StRsiStrategy: momentum.NewStochasticRsiStrategy(),
+func NewDemaVwmaStrategy() *DemaVwmaStrategy {
+	return &DemaVwmaStrategy{
+		VwmaStrategy: trend.NewVwmaStrategy(),
+		DemaStrategy: trend.NewDemaStrategy(),
 	}
 }
 
 // Name returns the name of the strategy.
-func (m *SrisVwmaStrategy) Name() string {
-	return fmt.Sprintf("SrisVwma Strategy")
+func (m *DemaVwmaStrategy) Name() string {
+	return fmt.Sprintf("DemaVwma Strategy")
 
 }
 
 // Compute processes the provided asset snapshots and generates a stream of actionable recommendations.
-func (m *SrisVwmaStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan strategy.Action {
+func (m *DemaVwmaStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan strategy.Action {
 	snapshotsSplice := helper.Duplicate(snapshots, 2)
 
 	vwmaActions := strategy.DenormalizeActions(
@@ -49,7 +43,7 @@ func (m *SrisVwmaStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan stra
 	)
 
 	rsiActions := strategy.DenormalizeActions(
-		m.StRsiStrategy.Compute(snapshotsSplice[1]),
+		m.DemaStrategy.Compute(snapshotsSplice[1]),
 	)
 
 	actions := helper.Operate(vwmaActions, rsiActions, func(macdAction, rsiAction strategy.Action) strategy.Action {
@@ -64,7 +58,7 @@ func (m *SrisVwmaStrategy) Compute(snapshots <-chan *asset.Snapshot) <-chan stra
 }
 
 // Report processes the provided asset snapshots and generates a report annotated with the recommended actions.
-func (m *SrisVwmaStrategy) Report(c <-chan *asset.Snapshot) *helper.Report {
+func (m *DemaVwmaStrategy) Report(c <-chan *asset.Snapshot) *helper.Report {
 	////
 	//// snapshots[0] -> dates
 	//// snapshots[1] -> closings[0] -> closings
